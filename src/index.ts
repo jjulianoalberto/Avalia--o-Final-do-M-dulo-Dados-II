@@ -20,8 +20,6 @@ app.use("/tweets", tweetRoutes);
 app.use("/likes", likeRoutes);
 app.use("/followers", followerRoutes);
 app.use("/replies", replyRoutes);
-app.use("/auth", authRoutes);
-app.use("/users", userRoutes);
 
 const PORT = process.env.PORT || 3000;
 
