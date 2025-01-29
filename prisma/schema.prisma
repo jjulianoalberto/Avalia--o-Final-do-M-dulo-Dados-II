@@ -1,0 +1,50 @@
+generator client {
+    provider = "prisma-client-js"
+}
+
+datasource db {
+    provider = "postgresql"
+    url      = env("DATABASE_URL")
+}
+
+model User {
+    id        Int        @id @default(autoincrement())
+    username  String     @unique
+    email     String     @unique
+    password  String
+    tweets    Tweet[]
+    likes     Like[]
+    followers Follower[] @relation("FollowedBy")
+    following Follower[] @relation("Follows")
+}
+
+model Tweet {
+    id              Int     @id @default(autoincrement())
+    content         String
+    type            String // 'Tweet' ou 'Reply'
+    userId          Int
+    user            User    @relation(fields: [userId], references: [id])
+    likes           Like[] // Relacionamento com os Likes
+    replies         Tweet[] @relation("TweetReplies") // Relacionamento recursivo para replies
+    originalTweetId Int? // Referência ao tweet original (caso seja um reply)
+    originalTweet   Tweet?  @relation("TweetReplies", fields: [originalTweetId], references: [id]) // Relação com o tweet original
+}
+
+model Like {
+  id      Int   @id @default(autoincrement())
+  userId  Int
+  tweetId Int
+  user    User  @relation(fields: [userId], references: [id])
+  tweet   Tweet @relation(fields: [tweetId], references: [id])
+
+  @@unique([userId, tweetId]) // Define uma chave composta
+}
+
+
+model Follower {
+    id         Int  @id @default(autoincrement())
+    followerId Int
+    followedId Int
+    follower   User @relation("Follows", fields: [followerId], references: [id])
+    followed   User @relation("FollowedBy", fields: [followedId], references: [id])
+}
